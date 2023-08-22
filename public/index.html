@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Todo App</title>
+</head>
+<body>
+  <h1>Add a Todo</h1>
+  <form id="todo-form">
+    <input type="text" id="todo-text" placeholder="Todo text">
+    <button type="submit">Add Todo</button>
+  </form>
+  <ul id="todos"></ul>
+  
+  <script src="script.js"></script>
+  <script>
+    const todoForm = document.getElementById('todo-form');
+    const todoText = document.getElementById('todo-text');
+    const todosList = document.getElementById('todos');
+
+    todoForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const text = todoText.value;
+
+      try {
+        const response = await fetch('/api/todos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text }),
+        });
+
+        if (response.ok) {
+          todoText.value = '';
+          fetchTodos();
+        } else {
+          console.error('Error adding todo');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    async function fetchTodos() {
+      try {
+        const response = await fetch('/api/todos');
+        const todos = await response.json();
+
+        todosList.innerHTML = todos.map(todo => `<li>${todo.text}</li>`).join('');
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchTodos();
+  </script>
+</body>
+</html>
